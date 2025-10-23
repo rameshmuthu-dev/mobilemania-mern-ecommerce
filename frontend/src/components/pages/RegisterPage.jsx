@@ -9,7 +9,8 @@ import { toast } from 'react-toastify';
 import { requestOtp, register, reset } from '../../redux/slices/authSlice'
 
 const RegisterPage = () => {
-    const [name, setName] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -44,10 +45,6 @@ const RegisterPage = () => {
             return;
         }
 
-        const [firstName, ...lastNameParts] = name.split(' ');
-        const lastName = lastNameParts.join(' ') || firstName;
-
-        // Step 1: Request OTP
         if (step === 1) {
 
             const requestData = {
@@ -62,11 +59,9 @@ const RegisterPage = () => {
                     setStep(2);
                 })
                 .catch(() => {
-                    // Error handled by toast in authSlice
                 });
         }
 
-        // Step 2: Final Registration
         else if (step === 2) {
             if (!otp) {
                 toast.error('Please enter the OTP to complete registration.');
@@ -99,16 +94,28 @@ const RegisterPage = () => {
                     {step === 1 && (
                         <>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700">Name</label>
+                                <label className="block text-sm font-medium text-gray-700">First Name</label>
                                 <input
                                     type="text"
-                                    placeholder="Enter full name"
+                                    placeholder="Enter first name"
                                     className="mt-1 w-full p-3 border border-gray-300 rounded-md focus:ring-lime-500 focus:border-lime-500"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
+                                    value={firstName}
+                                    onChange={(e) => setFirstName(e.target.value)}
                                     required
                                 />
                             </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Last Name (Optional)</label>
+                                <input
+                                    type="text"
+                                    placeholder="Enter last name"
+                                    className="mt-1 w-full p-3 border border-gray-300 rounded-md focus:ring-lime-500 focus:border-lime-500"
+                                    value={lastName}
+                                    onChange={(e) => setLastName(e.target.value)}
+                                />
+                            </div>
+
                             <div>
                                 <label className="block text-sm font-medium text-gray-700">Email Address</label>
                                 <input
