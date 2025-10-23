@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { savePaymentMethod } from '../../redux/slices/orderSlice'; // Assuming this action exists
 
 // Import your custom UI components
-import Button from '../ui/Button'; 
+import Button from '../ui/Button';
 import CheckoutSteps from '../ui/CheckoutSteps';
 
 const PaymentMethod = () => {
@@ -17,7 +17,7 @@ const PaymentMethod = () => {
 
     // Local state for the selected payment method. 
     // Initialize with the saved method or default to 'Stripe/Credit Card'
-    const [paymentMethod, setPaymentMethod] = useState(savedPaymentMethod || 'Stripe/Credit Card'); 
+    const [paymentMethod, setPaymentMethod] = useState(savedPaymentMethod || 'Stripe/Credit Card');
 
     // 🔑 STEP 2: Use an effect for navigation checks, after all hooks are called
     useEffect(() => {
@@ -30,10 +30,10 @@ const PaymentMethod = () => {
 
     const submitHandler = (e) => {
         e.preventDefault();
-        
+
         // Dispatch the selected payment method to the Redux store
         dispatch(savePaymentMethod(paymentMethod));
-        
+
         // Navigate to the final step
         navigate('/placeorder');
     };
@@ -41,13 +41,13 @@ const PaymentMethod = () => {
     return (
         <main className="max-w-xl mx-auto p-4">
             {/* Highlight step 3: Payment */}
-            <CheckoutSteps step1={true} step2={true} step3={true} /> 
+            <CheckoutSteps step1={true} step2={true} step3={true} />
 
             <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">Payment Method</h1>
 
             <form onSubmit={submitHandler} className="bg-white p-6 rounded-lg shadow-xl border border-gray-100">
                 <div className="space-y-4">
-                    
+
                     {/* Option 1: Stripe / Credit Card */}
                     <div className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition duration-150">
                         <input
@@ -60,13 +60,13 @@ const PaymentMethod = () => {
                             className="h-4 w-4 text-lime-600 focus:ring-lime-500 border-gray-300"
                         />
                         <label htmlFor="creditcard" className="ml-3 block text-base font-medium text-gray-700">
-                            Stripe / Credit Card 
+                            Stripe / Credit Card
                             <span className="text-sm text-gray-500 ml-2">(Pay securely online)</span>
                         </label>
                     </div>
 
-                  
-                    
+
+
                     {/* Option 3: Cash on Delivery (COD) */}
                     <div className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition duration-150">
                         <input
@@ -79,7 +79,7 @@ const PaymentMethod = () => {
                             className="h-4 w-4 text-lime-600 focus:ring-lime-500 border-gray-300"
                         />
                         <label htmlFor="cod" className="ml-3 block text-base font-medium text-gray-700">
-                            Cash on Delivery (COD) 
+                            Cash on Delivery (COD)
                             <span className="text-sm text-gray-500 ml-2">(Pay when you receive the order)</span>
                         </label>
                     </div>

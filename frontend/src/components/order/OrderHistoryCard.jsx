@@ -31,7 +31,7 @@ const OrderHistoryCard = ({ order }) => {
     return (
         <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-300 mb-6">
             <div className="flex justify-between items-start mb-4 border-b pb-3">
-                
+
                 {/* Order ID and Date */}
                 <div>
                     <h3 className="text-xl font-bold text-gray-800">Order ID: {order._id}</h3>
@@ -52,7 +52,7 @@ const OrderHistoryCard = ({ order }) => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                
+
                 {/* Items Summary */}
                 <div className="text-gray-700">
                     <p className="font-semibold">Items:</p>
