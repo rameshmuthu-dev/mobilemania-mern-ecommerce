@@ -3,14 +3,14 @@ const nodemailer = require('nodemailer');
 
 const sendEmail = asyncHandler(async (email, subject, text, attachments = []) => {
     const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        
+        host: 'smtp.gmail.com', 
+        port: 465,            
+        secure: true,        
         
         auth: {
             user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS
+            pass: process.env.EMAIL_PASS 
         },
-       
     });
 
     const mailOptions = {
@@ -22,8 +22,12 @@ const sendEmail = asyncHandler(async (email, subject, text, attachments = []) =>
         attachments: attachments,
     };
 
-    await transporter.sendMail(mailOptions);
-
+    try {
+        await transporter.sendMail(mailOptions);
+    } catch (error) {
+        console.error("Error sending email via SMTP:", error);
+        throw new Error("Email service failed. Check SMTP configuration (App Password, Host, Port).");
+    }
 });
 
 module.exports = { sendEmail };
