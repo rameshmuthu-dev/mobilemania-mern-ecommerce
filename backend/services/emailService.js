@@ -1,33 +1,27 @@
-const asyncHandler = require('express-async-handler');
-const nodemailer = require('nodemailer');
+import nodemailer from 'nodemailer';
 
-const sendEmail = asyncHandler(async (email, subject, text, attachments = []) => {
+const sendEmail = async (options) => {
     const transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com', 
-        port: 465,            
-        secure: true,        
-        
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false, 
         auth: {
             user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS 
+            pass: process.env.EMAIL_PASS, 
+        },
+        tls: {
+            rejectUnauthorized: false, 
         },
     });
 
     const mailOptions = {
-        from: `No-reply Mobile Mania <${process.env.EMAIL_USER}>`,
-        to: email,
-        subject: subject,
-        html: text,
-        text: text.replace(/<[^>]*>?/gm, ''),
-        attachments: attachments,
+        from: `${process.env.EMAIL_USER}`,
+        to: options.email,
+        subject: options.subject,
+        html: options.message,
     };
 
-    try {
-        await transporter.sendMail(mailOptions);
-    } catch (error) {
-        console.error("Error sending email via SMTP:", error);
-        throw new Error("Email service failed. Check SMTP configuration (App Password, Host, Port).");
-    }
-});
+    await transporter.sendMail(mailOptions);
+};
 
-module.exports = { sendEmail };
+export default sendEmail;
