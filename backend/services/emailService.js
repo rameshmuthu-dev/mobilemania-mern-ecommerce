@@ -10,8 +10,7 @@ const sendEmail = asyncHandler(async (email, subject, text, attachments = []) =>
             user: process.env.EMAIL_USER,
             pass: process.env.EMAIL_PASS
         },
-        connectionTimeout: 10000,
-        socketTimeout: 10000,
+       
     });
 
     const mailOptions = {
