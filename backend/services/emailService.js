@@ -2,12 +2,13 @@ const sgMail = require('@sendgrid/mail');
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-const sendEmail = async (options) => {
+const sendEmail = async (to, subject, message, attachments = []) => {
     const msg = {
-        to: options.to || options.email, 
+        to: to, 
         from: process.env.EMAIL_USER, 
-        subject: options.subject, 
-        html: options.message, 
+        subject: subject, 
+        html: message,
+        attachments: attachments 
     };
 
     try {
