@@ -1,19 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-// Ensure these paths are correct relative to src/pages/ForgotPasswordPage.jsx
 import Message from '../ui/Message'; 
 import Spinner from '../ui/Spinner';
 import Button from '../ui/Button';
 
-// Thunks imported from your authSlice (as previously defined)
 import { requestPasswordReset, resetPassword, reset } from '../../redux/slices/authSlice'; 
 
 const ForgotPasswordPage = () => {
     const [email, setEmail] = useState('');
     const [otp, setOtp] = useState('');
     const [newPassword, setNewPassword] = useState('');
-    const [step, setStep] = useState(1); // 1: Request Email, 2: Reset Password
+    const [step, setStep] = useState(1);
     const [localMessage, setLocalMessage] = useState(null);
 
     const dispatch = useDispatch();
@@ -21,29 +19,22 @@ const ForgotPasswordPage = () => {
 
     const { isLoading, isError, message } = useSelector((state) => state.auth);
 
-    // Clean up Redux state errors on mount
     useEffect(() => {
         dispatch(reset());
         return () => { dispatch(reset()); };
     }, [dispatch]);
 
-    // --- STEP 1 HANDLER: Request OTP ---
     const handleRequestOtp = async (e) => {
         e.preventDefault();
         setLocalMessage(null);
 
-        // Dispatch the thunk to request OTP
         const resultAction = await dispatch(requestPasswordReset(email));
 
-        // Check if the request was successful
         if (requestPasswordReset.fulfilled.match(resultAction)) {
-            // If API call is successful, move to step 2
             setStep(2);
         }
-        // Error message is handled by Redux state and toast
     };
 
-    // --- STEP 2 HANDLER: Reset Password ---
     const handlePasswordReset = async (e) => {
         e.preventDefault();
         setLocalMessage(null);
@@ -53,16 +44,12 @@ const ForgotPasswordPage = () => {
             return;
         }
 
-        // Dispatch the thunk to reset the password
         const data = { email, otp, newPassword };
         const resultAction = await dispatch(resetPassword(data));
 
-        // Check if the password reset was successful
         if (resetPassword.fulfilled.match(resultAction)) {
-            // If successful, navigate the user back to the login page
             navigate('/login');
         }
-        // Error message is handled by Redux state and toast
     };
 
 
@@ -70,17 +57,13 @@ const ForgotPasswordPage = () => {
         <div className="flex justify-center items-center py-10 bg-gray-50">
             <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-lg border border-gray-200">
                 <h1 className="text-3xl font-bold text-center text-gray-800">
-                    {step === 1 ? 'Forgot Password (Step 1)' : 'Reset Password (Step 2)'}
+                    {step === 1 ? 'Reset Password' : 'Verify & Set New Password'}
                 </h1>
                 
-                {/* Error/Message Display */}
                 {localMessage && <Message variant="danger">{localMessage}</Message>}
                 {isError && <Message variant="danger">{message}</Message>}
                 {isLoading && <Spinner />}
 
-                {/* ========================================================= */}
-                {/* --- STEP 1: Request OTP by Email --- */}
-                {/* ========================================================= */}
                 {step === 1 && (
                     <form onSubmit={handleRequestOtp} className="space-y-4">
                         <p className="text-gray-600 text-sm">
@@ -109,16 +92,12 @@ const ForgotPasswordPage = () => {
                     </form>
                 )}
 
-                {/* ========================================================= */}
-                {/* --- STEP 2: Enter OTP and New Password --- */}
-                {/* ========================================================= */}
                 {step === 2 && (
                     <form onSubmit={handlePasswordReset} className="space-y-4">
                         <p className="text-sm text-green-600 font-semibold">
                             An OTP has been sent to the email: <span className='font-bold'>{email}</span>.
                         </p>
 
-                        {/* OTP Input */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700">OTP</label>
                             <input
@@ -126,14 +105,13 @@ const ForgotPasswordPage = () => {
                                 placeholder="Enter 6-digit OTP"
                                 className="mt-1 w-full p-3 border border-gray-300 rounded-md focus:ring-lime-500 focus:border-lime-500"
                                 value={otp}
-                                onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, ''))} // Restrict to numbers
+                                onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, ''))}
                                 required
                                 minLength={6}
                                 maxLength={6}
                             />
                         </div>
                         
-                        {/* New Password Input */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700">New Password</label>
                             <input

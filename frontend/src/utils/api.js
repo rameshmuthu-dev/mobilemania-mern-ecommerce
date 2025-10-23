@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-export const BASE_URL = 'https://mobilemania-mern-ecommerce.onrender.com/api'; 
+ export const BASE_URL = 'https://mobilemania-mern-ecommerce.onrender.com/api'; 
+ 
 
 const API = axios.create({
     baseURL: BASE_URL,
