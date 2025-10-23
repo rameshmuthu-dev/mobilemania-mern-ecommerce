@@ -1,6 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const Order = require('../models/Order');
-const User = require('../models/User'); 
+const User = require('../models/User');
 const Product = require('../models/Product');
 const { createInvoicePdf } = require('../services/invoiceService');
 const { sendEmail } = require('../services/emailService');
@@ -52,7 +52,7 @@ const createOrder = asyncHandler(async (req, res) => {
     const taxPrice = roundToTwoDecimals(taxPriceUnrounded);
     const totalPrice = roundToTwoDecimals(totalPriceUnrounded);
 
-    let isPaid = false; 
+    let isPaid = false;
     let paidAt = null;
     let paymentDetails = null;
 
@@ -63,7 +63,7 @@ const createOrder = asyncHandler(async (req, res) => {
     }
 
     const order = new Order({
-        user: req.user._id, 
+        user: req.user._id,
         orderItems: validatedOrderItems,
         shippingAddress,
         paymentMethod,
@@ -71,7 +71,7 @@ const createOrder = asyncHandler(async (req, res) => {
         shippingPrice,
         taxPrice,
         totalPrice,
-        isPaid: isPaid, 
+        isPaid: isPaid,
         paidAt: paidAt,
         paymentResult: paymentDetails,
     });
@@ -88,7 +88,7 @@ const createOrder = asyncHandler(async (req, res) => {
             const attachments = [
                 {
                     filename: `Invoice_${createdOrder._id.toString().substring(18)}.pdf`,
-                    content: pdfBuffer.toString('base64'), 
+                    content: pdfBuffer.toString('base64'),
                     contentType: 'application/pdf',
                 }
             ];
@@ -97,7 +97,7 @@ const createOrder = asyncHandler(async (req, res) => {
             console.log(`COD order confirmation email sent to ${userEmail}`);
 
             res.status(201).json(createdOrder);
-            return; 
+            return;
         } catch (emailError) {
             console.error('ERROR: Failed to send COD confirmation email. (Order was placed successfully)', emailError);
             res.status(201).json(createdOrder);
@@ -114,7 +114,7 @@ const hasUserPurchasedProduct = asyncHandler(async (req, res) => {
 
     const orderExists = await Order.findOne({
         user: userId,
-        isPaid: true, 
+        isPaid: true,
         'orderItems.product': productId,
     });
 
@@ -218,7 +218,7 @@ const updateOrderToPaid = asyncHandler(async (req, res) => {
         }
 
         order.isPaid = true;
-        order.paidAt = Date.now(); 
+        order.paidAt = Date.now();
 
         if (req.body.paymentResult) {
             order.paymentResult = {
@@ -228,7 +228,7 @@ const updateOrderToPaid = asyncHandler(async (req, res) => {
             };
         } else {
             order.paymentResult = {
-                id: req.params.id, 
+                id: req.params.id,
                 status: 'Success',
                 email_address: order.user.email,
             };
@@ -243,13 +243,19 @@ const updateOrderToPaid = asyncHandler(async (req, res) => {
             const user = order.user;
             const invoiceBuffer = await createInvoicePdf(updatedOrder, user);
 
-            attachments = [
-                {
-                    filename: `Invoice_${order._id.toString().substring(18)}.pdf`,
-                    content: invoiceBuffer.toString('base64'),
-                    contentType: 'application/pdf',
-                }
-            ];
+            if (Buffer.isBuffer(invoiceBuffer) && invoiceBuffer.length > 0) {
+                attachments = [
+                    {
+                        filename: `Invoice_${order._id.toString().substring(18)}.pdf`,
+                        content: invoiceBuffer.toString('base64'),
+                        contentType: 'application/pdf',
+                    }
+                ];
+                console.log('Invoice PDF generated and attached successfully (Base64 conversion used).');
+            } else {
+                console.error('ERROR: createInvoicePdf did not return a valid PDF Buffer.');
+                emailSubject = `✅ Payment Confirmation: #${order._id.toString().substring(18)} (Invoice not attached)`;
+            }
 
         } catch (error) {
             console.error('ERROR: Failed to generate or attach invoice PDF:', error.message);
@@ -287,26 +293,26 @@ const updateOrderToDelivered = asyncHandler(async (req, res) => {
         const fullOrderId = order._id.toString();
 
         const productListHtml = order.orderItems.map(item => `
-            <li>
-                <strong>${item.product.name}</strong> 
-            </li>
-        `).join('');
+            <li>
+                <strong>${item.product.name}</strong> 
+            </li>
+        `).join('');
 
         const emailSubject = `✅ Order Successfully Delivered: #${fullOrderId}`;
 
         const messageHtml = `
-            <p>Dear ${order.user.firstName},</p>
-            <p>We are happy to confirm that your order **#${fullOrderId}** has been **successfully delivered**!</p>
-            
-            <h4 style="margin-top: 20px;">Delivered Items:</h4>
-            <ul style="list-style: disc; padding-left: 20px;">
-                ${productListHtml}
-            </ul>
+            <p>Dear ${order.user.firstName},</p>
+            <p>We are happy to confirm that your order **#${fullOrderId}** has been **successfully delivered**!</p>
+            
+            <h4 style="margin-top: 20px;">Delivered Items:</h4>
+            <ul style="list-style: disc; padding-left: 20px;">
+                ${productListHtml}
+            </ul>
 
-            <p style="margin-top: 20px;">You can view your complete order details and invoice anytime in your account history.</p>
-            <br>
-            <p>Regards,<br>Mobile Mania Team</p>
-        `;
+            <p style="margin-top: 20px;">You can view your complete order details and invoice anytime in your account history.</p>
+            <br>
+            <p>Regards,<br>Mobile Mania Team</p>
+        `;
 
         try {
             await sendEmail(order.user.email, emailSubject, messageHtml, []);
